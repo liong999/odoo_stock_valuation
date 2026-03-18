@@ -4,8 +4,8 @@
     "category": "Inventory/Inventory",
     "summary": "Create stock valuation journal entries on picking validation",
     "description": """
-        Restores Odoo 18-style stock accounting entry creation for
-        real-time valued products when stock pickings are validated.
+        Creates stock valuation journal entries when validating stock pickings
+        for real-time valued product categories.
     """,
     "author": "Liong",
     "website": "https://www.linkedin.com/in/nagara-liong-50ab07136/",
@@ -14,6 +14,9 @@
     ],
     "data": [
         "views/product_category_view.xml",
+    ],
+    "images": [
+        "static/description/main_screenshot.png",
     ],
     "installable": True,
     "application": False,
