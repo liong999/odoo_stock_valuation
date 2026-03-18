@@ -19,4 +19,6 @@
     "application": False,
     "auto_install": False,
     "license": "LGPL-3",
+    "price": 200000,
+    "currency": "IDR"
 }
