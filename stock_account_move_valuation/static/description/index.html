@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Stock Accounting Move Valuation</title>
+</head>
+<body>
+    <section style="max-width: 960px; margin: 0 auto; padding: 24px; font-family: Arial, sans-serif; color: #16324f;">
+        <div style="margin-bottom: 24px;">
+            <img
+                src="main_screenshot.png"
+                alt="Stock Accounting Move Valuation"
+                style="display: block; width: 100%; border-radius: 12px; box-shadow: 0 12px 32px rgba(22, 50, 79, 0.18);"
+            />
+        </div>
+
+        <h1 style="margin: 0 0 12px; font-size: 32px;">Stock Accounting Move Valuation</h1>
+        <p style="margin: 0 0 16px; font-size: 16px; line-height: 1.7;">
+            This module restores stock valuation journal entry creation when a stock picking is validated,
+            similar to the behavior users were familiar with in Odoo 18.
+        </p>
+
+        <h2 style="margin: 24px 0 12px; font-size: 22px;">What it does</h2>
+        <ul style="margin: 0 0 16px; padding-left: 20px; line-height: 1.8;">
+            <li>Creates account moves for done stock moves on real-time valued product categories.</li>
+            <li>Adds a category option to enable journal entry creation on move validation.</li>
+            <li>Lets you select the stock journal directly from the product category.</li>
+        </ul>
+
+        <h2 style="margin: 24px 0 12px; font-size: 22px;">Configuration</h2>
+        <ol style="margin: 0 0 16px; padding-left: 20px; line-height: 1.8;">
+            <li>Open a product category configured with real-time inventory valuation.</li>
+            <li>Enable <strong>Create Journal on Move</strong>.</li>
+            <li>Select the journal to use for the generated valuation entries.</li>
+            <li>Validate incoming or outgoing pickings for products in that category.</li>
+        </ol>
+
+        <h2 style="margin: 24px 0 12px; font-size: 22px;">Use case</h2>
+        <p style="margin: 0; font-size: 16px; line-height: 1.7;">
+            It is useful when you want stock valuation postings to happen immediately at picking validation
+            and keep a workflow closer to the previous version's accounting behavior.
+        </p>
+    </section>
+</body>
+</html>
