@@ -1,0 +1,25 @@
+<odoo>
+    <data>
+        <record id="view_category_property_form_stock_account_move_valuation" model="ir.ui.view">
+            <field name="name">view_category_property_form_stock_account_move_valuation</field>
+            <field name="model">product.category</field>
+            <field name="inherit_id" ref="account.view_category_property_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='parent_id']" position="after">
+                    <field name="property_stock_journal" required="property_valuation == 'real_time'" />
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_category_property_form_stock_account_move_valuation_inherit" model="ir.ui.view">
+            <field name="name">view_category_property_form_stock_account_move_valuation_inherit</field>
+            <field name="model">product.category</field>
+            <field name="inherit_id" ref="stock.product_category_form_view_inherit" />
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='property_cost_method']" position="before">
+                    <field name="is_create_journal_on_move"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>
