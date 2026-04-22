@@ -5,9 +5,13 @@
             <field name="model">product.category</field>
             <field name="inherit_id" ref="account.view_category_property_form" />
             <field name="arch" type="xml">
-                <xpath expr="//field[@name='parent_id']" position="after">
-                    <field name="property_stock_journal" required="property_valuation == 'real_time'" />
-                </xpath>
+                <group name="account_property" position="inside">
+                    <group string="Stock Accounts" groups="account.group_account_readonly">
+                        <field name="property_stock_journal" />
+                        <field name="property_stock_account_input_categ_id" />
+                        <field name="property_stock_account_output_categ_id" />
+                    </group>
+                </group>
             </field>
         </record>
 
@@ -23,3 +27,4 @@
         </record>
     </data>
 </odoo>
+

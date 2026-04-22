@@ -51,7 +51,7 @@ class StockMove(models.Model):
         """
         moves = self.filtered(
             lambda m: m.state == "done"
-            and m.product_id.is_storable
+            and m.product_id.type in ["product", "consu"]
             and m.company_id
             and m.product_id.categ_id.property_valuation == "real_time"
             and m.value > 0
@@ -59,17 +59,42 @@ class StockMove(models.Model):
         if not moves:
             return
 
-        product_accounts = self.product_id._get_product_accounts()
-        if valued_type == 'in':
-            debit_acc = product_accounts['stock_variation']
-            credit_acc = product_accounts['stock_valuation']
-        else:
-            debit_acc = product_accounts['stock_valuation']
-            credit_acc = product_accounts['stock_variation']
-        
-        move_vals = self._prepare_account_move_vals(credit_acc.id, debit_acc.id)
+        all_line_ids = []
+        for move in moves:
+            product_accounts = move.product_id._get_product_accounts()
+            if valued_type == 'in':
+                # Receipt: inventory increases, interim creditor (stock_input) is credited
+                # Debit: Stock Valuation (asset UP)
+                # Credit: Stock Input Account (goods received, not yet billed)
+                debit_acc = product_accounts['stock_valuation']
+                credit_acc = product_accounts.get('stock_input') or product_accounts['stock_variation']
+            else:
+                # Delivery: inventory decreases, interim (stock_output) is debited
+                # Debit: Stock Output Account (goods delivered, COGS will follow on invoice)
+                # Credit: Stock Valuation (asset DOWN)
+                debit_acc = product_accounts.get('stock_output') or product_accounts['stock_variation']
+                credit_acc = product_accounts['stock_valuation']
+
+            all_line_ids += move._prepare_account_move_line_vals(credit_acc.id, debit_acc.id)
+
+
+        first_move = moves[0]
+        date = self.env.context.get('force_period_date') or fields.Date.context_today(first_move)
+        move_vals = {
+            'journal_id': first_move.product_id.categ_id.property_stock_journal.id,
+            'line_ids': all_line_ids,
+            'partner_id': first_move.partner_id.id,
+            'name': first_move.picking_id.name,
+            'date': date,
+            'ref': first_move.picking_id.origin,
+            'move_type': 'entry',
+            'is_storno': self.env.context.get('is_returned') and first_move.company_id.account_storno,
+            'company_id': first_move.company_id.id,
+            'branch_id': first_move.branch_id.id,
+        }
         move = self.env['account.move'].sudo().create(move_vals)
         move.sudo().action_post()
+        moves.sudo().write({'account_move_id': move.id})
         return move
         
     
@@ -78,14 +103,14 @@ class StockMove(models.Model):
         self.ensure_one()
         journal_id = self.product_id.categ_id.property_stock_journal.id
 
-        move_ids = self._prepare_account_move_line_vals(credit_account_id, debit_account_id)
+        line_ids = self._prepare_account_move_line_vals(credit_account_id, debit_account_id)
         if self.env.context.get('force_period_date'):
             date = self.env.context.get('force_period_date')
         else:
             date = fields.Date.context_today(self)
         return {
             'journal_id': journal_id,
-            'line_ids': move_ids,
+            'line_ids': line_ids,
             'partner_id': self.partner_id.id,
             'name': self.picking_id.name,
             'date': date,
@@ -103,6 +128,7 @@ class StockMove(models.Model):
             'name': self.reference + ' - ' + self.product_id.name,
             'debit': 0,
             'credit': value,
+            'purchase_line_id': self.purchase_line_id.id,
             'product_id': self.product_id.id,
             'branch_id': self.branch_id.id,
         }), (0, 0, {
@@ -110,6 +136,7 @@ class StockMove(models.Model):
             'name': self.reference + ' - ' + self.product_id.name,
             'debit': value,
             'credit': 0,
+            'purchase_line_id': self.purchase_line_id.id,
             'product_id': self.product_id.id,
             'branch_id': self.branch_id.id,
         })]
